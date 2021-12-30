@@ -1,5 +1,6 @@
 package com.example.mock_project.controller;
 
+import com.example.mock_project.dto.ClaimRequestForAnalyzeDTO;
 import com.example.mock_project.entity.ClaimRequest;
 import com.example.mock_project.entity.Customer;
 import com.example.mock_project.service.ClaimRequestService;
@@ -44,6 +45,60 @@ public class ClaimRequestController {
         claimRequest.setListUrlImage(listurl);
         claimRequestService.saveClaimRequest(claimRequest);
         return claimRequest;
-//        return " You successfully uploaded!";
+    }
+
+    @DeleteMapping("/")
+    public void deleteRequestClaimById(@RequestParam(name = "id") String id){
+        claimRequestService.deleteClaimRequestById(id);
+    }
+
+
+    @GetMapping("/analyze")
+    public List<ClaimRequestForAnalyzeDTO> getClaimRequestIsNotAnalyzed(){
+        return  claimRequestService.getClaimRequestsIsNotAnalyzed();
+    }
+
+    @PutMapping("/analyze")
+    public String updateClaimRequestAfterAnalyzed(@RequestBody ClaimRequest claimRequest){
+        System.out.println(claimRequest.toString());
+        ClaimRequest claimRequestDB = claimRequestService.getClaimRequestById(claimRequest.getId());
+
+        claimRequestDB.setAnalyzed(true);
+        claimRequestDB.setAccidentId(claimRequest.getAccidentId());
+        claimRequestDB.setHospitalId(claimRequest.getHospitalId());
+        claimRequestDB.setReceiptAmount(claimRequest.getReceiptAmount());
+        claimRequestDB.setDateOfReceipt(claimRequest.getDateOfReceipt());
+        claimRequestDB.setName(claimRequest.getName());
+        claimRequestDB.setValidReceipt(claimRequest.isValidReceipt());
+        claimRequestService.updateClaimRequest(claimRequestDB);
+        return "Success";
+    }
+
+    @GetMapping("/review")
+    public List<ClaimRequest> getClaimRequestIsAnalyzed(){
+        return claimRequestService.getClaimRequestsIsAnalyzedAndIsNotAproveOrReject();
+    }
+
+    @PutMapping("/review")
+    public String updateClaimRequestApproveOrReject(@RequestParam(name = "id") String id,
+                                                    @RequestParam(name = "approve") boolean approve){
+        ClaimRequest claimRequest = claimRequestService.getClaimRequestById(id);
+        claimRequest.setHasApprove(true);
+        claimRequest.setApprove(approve);
+        claimRequestService.updateClaimRequest(claimRequest);
+        return "Success";
+    }
+    @GetMapping("/review/payment")
+    public List<ClaimRequest> getClaimRequestIsNotReviewToPayment(){
+        return claimRequestService.getClaimRequestsIsNotReviewToPayment();
+    }
+    @PutMapping("/review/payment")
+    public String updateClaimRequestIsPaymentOrNot(@RequestParam(name = "id") String id,
+                                                   @RequestParam(name = "payment") boolean payment){
+        ClaimRequest claimRequest = claimRequestService.getClaimRequestById(id);
+        claimRequest.setHasPayment(true);
+        claimRequest.setPayment(payment);
+        claimRequestService.updateClaimRequest(claimRequest);
+        return "Success";
     }
 }
