@@ -1,5 +1,6 @@
 package com.example.mock_project.controller;
 
+import com.example.mock_project.dto.ContractDTO;
 import com.example.mock_project.entity.Contract;
 import com.example.mock_project.repository.ContractRepository;
 import com.example.mock_project.service.ContractService;
@@ -10,15 +11,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/contracts")
-public class ContractCRUDController {
+public class ContractController {
     @Autowired
     ContractRepository contractRepository;
     @Autowired
     private ContractService contractService;
 
     @GetMapping("/")
-    public List<Contract> getAllContract(){
-        return contractService.getAll();
+    public List<ContractDTO> getAllContract(){
+        return contractService.getAllDTO();
     }
     @GetMapping("/byId")
     public Contract getContractById(@RequestParam(name = "id_contract", value = "id_contract") String id){

@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Date;
 
 @Entity
@@ -13,7 +14,7 @@ import java.sql.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "contract")
-public class Contract {
+public class Contract implements Serializable {
 
     @Id
     @GeneratedValue(generator="system-uuid")
@@ -22,8 +23,8 @@ public class Contract {
     private String id;
 
     // Customer
-    @Column(name = "customer_id")
-    private String customerId;
+    @ManyToOne
+    private Customer customer;
     @Column(name = "valid_from")
     private Date validFrom;
     @Column(name = "valid_to")
