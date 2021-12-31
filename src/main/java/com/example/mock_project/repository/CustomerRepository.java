@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
+
+    // Querry Method
     List<Customer> findByNameAndCardId(String name, String cardId);
 }

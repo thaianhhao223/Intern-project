@@ -17,6 +17,7 @@ public class CustomerService {
 
     @Autowired
     private CustomerMapper customerMapper;
+
     public List<Customer> getAllCustomer(){
        return customerRepository.findAll();
     }

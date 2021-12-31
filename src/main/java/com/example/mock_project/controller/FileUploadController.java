@@ -9,6 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedWriter;
 import java.io.Writer;
 
+/**
+ * Dùng để test chức năng upload file
+ */
 @RestController
 @RequestMapping("/upload")
 public class FileUploadController {

@@ -1,12 +1,11 @@
 package com.example.mock_project.dto;
 
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
-import java.util.List;
-
 /**
- *  Dùng để trả về một ClaimRequestDTO cho quá trình analyze, chỉ bao gồm:
+ *  Dùng để trả về một ClaimRequestDTO cho việc xem lịch sử payment trong một tháng, bao gồm:
  *  id
  *  danh sách các reciept
  */
@@ -16,7 +15,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
-public class ClaimRequestForAnalyzeDTO {
+public class ClaimRequestPaymentDTO {
     private String id;
-    private List<String> listUrlImage;
+    private double receiptAmount;
 }

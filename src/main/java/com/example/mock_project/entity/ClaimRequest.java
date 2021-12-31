@@ -29,7 +29,7 @@ public class ClaimRequest {
     private List<String> listUrlImage;
 
     @Column(columnDefinition = "boolean default false")
-    private boolean analyzed ;
+    private boolean hasAnalyzed;
 
     @Column(columnDefinition = "boolean default false")
     private boolean validReceipt;
