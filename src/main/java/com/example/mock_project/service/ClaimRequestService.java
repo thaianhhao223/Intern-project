@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class ClaimRequestService {
+
     @Autowired
     private ClaimRequestRepository claimRequestRepository;
 
@@ -75,12 +77,58 @@ public class ClaimRequestService {
         claimRequestRepository.saveAndFlush(claimRequest);
         return claimRequest;
     }
-    public void deleteClaimRequest(ClaimRequest claimRequest){
-        claimRequestRepository.delete(claimRequest);
+
+    /**
+     * Thực hiện cập nhật các giá trị cho ClaimRequest sau khi được analyze
+     * @param claimRequest
+     * @return
+     */
+    public ClaimRequest updateClaimRequestAfterAnalyze(ClaimRequest claimRequest){
+        Optional<ClaimRequest> claimRequestOptional
+                = claimRequestRepository.findById(claimRequest.getId());
+        if(claimRequestOptional.isPresent()){
+            ClaimRequest claimRequestDB = claimRequestOptional.get();
+            claimRequestDB.setHasAnalyzed(true);
+            claimRequestDB.setAccidentId(claimRequest.getAccidentId());
+            claimRequestDB.setHospitalId(claimRequest.getHospitalId());
+            claimRequestDB.setReceiptAmount(claimRequest.getReceiptAmount());
+            claimRequestDB.setDateOfReceipt(claimRequest.getDateOfReceipt());
+            claimRequestDB.setName(claimRequest.getName());
+            claimRequestDB.setValidReceipt(claimRequest.isValidReceipt());
+            claimRequestRepository.saveAndFlush(claimRequestDB);
+        }
+//        else {
+//
+//        }
+        return claimRequest;
+    }
+
+    /**
+     * Thực hiện set giá trị payment cho ClaimRequest, true nếu đồng ý payment, flase nếu từ chối
+     * @param id id của ClaimRequest được gửi đến.
+     * @param payment
+     * @return
+     */
+    public String paymentClaimRequest(String id, boolean payment){
+        Optional<ClaimRequest> claimRequestOptional = claimRequestRepository.findById(id);
+
+        String result;
+        if(claimRequestOptional.isPresent()){
+            ClaimRequest claimRequest = claimRequestOptional.get();
+            claimRequest.setHasPayment(true);
+            claimRequest.setPayment(payment);
+            claimRequestRepository.saveAndFlush(claimRequest);
+            result = "Payment succes!";
+        }else{
+            result = "Not found Claim request with id: " + id;
+        }
+        return result;
     }
     public void deleteClaimRequestById(String id){
-        ClaimRequest claimRequest = claimRequestRepository.findById(id).get();
-        if(claimRequest != null)
-            claimRequestRepository.delete(claimRequest);
+        Optional<ClaimRequest> claimRequestOptional = claimRequestRepository.findById(id);
+        if(claimRequestOptional.isPresent()){
+            claimRequestRepository.delete(claimRequestOptional.get());
+        }
+
     }
 }

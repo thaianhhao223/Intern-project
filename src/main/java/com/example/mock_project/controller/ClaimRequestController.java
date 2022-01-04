@@ -39,15 +39,15 @@ public class ClaimRequestController {
      * Người dùng gửi một Claim request.
      * @param file Các ảnh receipt họ yêu cầu bồi thường
      * @param name Tên người dùng, dùng để tìm người dùng (customer)
-     * @param card_id card_id của họ, dùng để tìm người dùng (customer)
+     * @param cardId card_id của họ, dùng để tìm người dùng (customer)
      * @return
      */
     @PostMapping("/")
-    public ClaimRequest RequestClaim(@RequestParam(value = "files") MultipartFile[] file,
+    public ClaimRequest saveRequestClaim(@RequestParam(value = "files") MultipartFile[] file,
                                        @RequestParam(value = "name") String name,
-                                       @RequestParam(value = "card_id") String card_id){
+                                       @RequestParam(value = "cardId") String cardId){
         // Truy vấn customer có cùng tên và id_card
-        Customer customer = customerService.findCustomerByCardIdAndName(name,card_id).get(0);
+        Customer customer = customerService.findCustomerByCardIdAndName(name, cardId).get(0);
 
         // Lưu trữ các file được upload và trả về danh sách đường dẫn của những file đó
         List<String> listurl = new ArrayList<>();
@@ -86,18 +86,7 @@ public class ClaimRequestController {
      */
     @PutMapping("/analyze")
     public String updateClaimRequestAfterAnalyzed(@RequestBody ClaimRequest claimRequest){
-        // Chưa xử lý các trường hợp như tìm không thấy kết quả này trùng khớp.
-        // Lấy một object có id tương tự
-        ClaimRequest claimRequestDB = claimRequestService.getClaimRequestById(claimRequest.getId());
-        // set các atribute cho object vừa được lấy ra, để đảm bảo JPA hoạt động đúng.
-        claimRequestDB.setHasAnalyzed(true);
-        claimRequestDB.setAccidentId(claimRequest.getAccidentId());
-        claimRequestDB.setHospitalId(claimRequest.getHospitalId());
-        claimRequestDB.setReceiptAmount(claimRequest.getReceiptAmount());
-        claimRequestDB.setDateOfReceipt(claimRequest.getDateOfReceipt());
-        claimRequestDB.setName(claimRequest.getName());
-        claimRequestDB.setValidReceipt(claimRequest.isValidReceipt());
-        claimRequestService.updateClaimRequest(claimRequestDB);
+        claimRequestService.updateClaimRequestAfterAnalyze(claimRequest);
         return "Success";
     }
 
@@ -145,10 +134,8 @@ public class ClaimRequestController {
     @PutMapping("/review/payment")
     public String updateClaimRequestIsPaymentOrNot(@RequestParam(name = "id") String id,
                                                    @RequestParam(name = "payment") boolean payment){
-        ClaimRequest claimRequest = claimRequestService.getClaimRequestById(id);
-        claimRequest.setHasPayment(true);
-        claimRequest.setPayment(payment);
-        claimRequestService.updateClaimRequest(claimRequest);
+
+        claimRequestService.paymentClaimRequest(id, payment);
         return "Success";
     }
 

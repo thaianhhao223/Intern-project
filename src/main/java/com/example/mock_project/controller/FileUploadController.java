@@ -21,9 +21,9 @@ public class FileUploadController {
 
     @PostMapping("/")
     public String postFile(@RequestPart(value = "file") MultipartFile file){
-        System.out.println(file.getName());
-        storageService.store(file);
-        return "message"+" You successfully uploaded " + file.getOriginalFilename() + "!";
+        String url = "";
+        url = storageService.store(file);
+        return url;
     }
     @PostMapping("/multifile")
     public String postMutiFile(@RequestPart(value = "files") MultipartFile[] file){
