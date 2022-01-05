@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Dùng để test chức năng upload file
@@ -26,11 +28,14 @@ public class FileUploadController {
         return url;
     }
     @PostMapping("/multifile")
-    public String postMutiFile(@RequestPart(value = "files") MultipartFile[] file){
-        System.out.println(file[1].getName());
+    public List<String> postMutiFile(@RequestPart(value = "files") MultipartFile[] file){
+        List<String> listUrl = new ArrayList<>();
+        String url;
         for(MultipartFile singleFile: file){
-            storageService.store(singleFile);
+            url = "";
+            url = storageService.store(singleFile);
+            listUrl.add(url);
         }
-        return " You successfully uploaded!";
+        return listUrl;
     }
 }

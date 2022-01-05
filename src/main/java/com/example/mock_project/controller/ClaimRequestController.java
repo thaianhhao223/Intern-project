@@ -1,9 +1,12 @@
 package com.example.mock_project.controller;
 
+import com.example.mock_project.dto.ClaimRequestBeforePaymentDTO;
 import com.example.mock_project.dto.ClaimRequestForAnalyzeDTO;
+import com.example.mock_project.dto.ClaimRequestNewDTO;
 import com.example.mock_project.dto.ClaimRequestPaymentDTO;
 import com.example.mock_project.entity.ClaimRequest;
 import com.example.mock_project.entity.Customer;
+import com.example.mock_project.entity.ReponseMessage;
 import com.example.mock_project.service.ClaimRequestService;
 import com.example.mock_project.service.CustomerService;
 import com.example.mock_project.storage.StorageService;
@@ -11,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,31 +41,12 @@ public class ClaimRequestController {
 
     /**
      * Người dùng gửi một Claim request.
-     * @param file Các ảnh receipt họ yêu cầu bồi thường
-     * @param name Tên người dùng, dùng để tìm người dùng (customer)
-     * @param cardId card_id của họ, dùng để tìm người dùng (customer)
-     * @return
+     * @param claimRequestNewDTO
+     * @return trả về thành công hay thất bại
      */
     @PostMapping("/")
-    public ClaimRequest saveRequestClaim(@RequestParam(value = "files") MultipartFile[] file,
-                                       @RequestParam(value = "name") String name,
-                                       @RequestParam(value = "cardId") String cardId){
-        // Truy vấn customer có cùng tên và id_card
-        Customer customer = customerService.findCustomerByCardIdAndName(name, cardId).get(0);
-
-        // Lưu trữ các file được upload và trả về danh sách đường dẫn của những file đó
-        List<String> listurl = new ArrayList<>();
-        for(MultipartFile singleFile: file){
-           String url = storageService.store(singleFile);
-           listurl.add(url);
-        }
-
-        // Tạo một Claim Request để lưu trữ
-        ClaimRequest claimRequest = new ClaimRequest();
-        claimRequest.setCustomer(customer);
-        claimRequest.setListUrlImage(listurl);
-        claimRequestService.saveClaimRequest(claimRequest);
-        return claimRequest;
+    public ReponseMessage saveRequestClaim(@Valid @RequestBody ClaimRequestNewDTO claimRequestNewDTO){
+        return claimRequestService.saveClaimRequest(claimRequestNewDTO);
     }
 
     @DeleteMapping("/")
@@ -85,9 +70,8 @@ public class ClaimRequestController {
      * @return
      */
     @PutMapping("/analyze")
-    public String updateClaimRequestAfterAnalyzed(@RequestBody ClaimRequest claimRequest){
-        claimRequestService.updateClaimRequestAfterAnalyze(claimRequest);
-        return "Success";
+    public ReponseMessage updateClaimRequestAfterAnalyzed(@RequestBody ClaimRequest claimRequest){
+        return claimRequestService.updateClaimRequestAfterAnalyze(claimRequest);
     }
 
     /**
@@ -96,7 +80,7 @@ public class ClaimRequestController {
      * @return danh sách các Claim request
      */
     @GetMapping("/review")
-    public List<ClaimRequest> getClaimRequestIsAnalyzed(){
+    public List<ClaimRequestBeforePaymentDTO> getClaimRequestIsAnalyzed(){
         return claimRequestService.getClaimRequestsIsAnalyzedAndIsNotAproveOrReject();
     }
 
