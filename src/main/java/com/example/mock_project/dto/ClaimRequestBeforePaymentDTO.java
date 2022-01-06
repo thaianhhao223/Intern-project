@@ -1,8 +1,12 @@
 package com.example.mock_project.dto;
 
 import com.example.mock_project.entity.Customer;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonKey;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import org.springframework.boot.context.properties.bind.Name;
 
 import javax.persistence.Column;
 import java.sql.Date;
@@ -18,8 +22,10 @@ import java.sql.Date;
 @Setter
 public class ClaimRequestBeforePaymentDTO {
     private String id;
-    @Column(name = "customer")
+
+    @JsonProperty("customer")
     private CustomerForClaimRequestDTO customerForClaimRequestDTO;
+    @JsonProperty("amount")
     private double receiptAmount;
     private Date dateOfReceipt;
 }

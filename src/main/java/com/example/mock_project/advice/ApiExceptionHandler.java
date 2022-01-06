@@ -2,6 +2,9 @@ package com.example.mock_project.advice;
 
 import com.example.mock_project.entity.ErrorMessage;
 import com.example.mock_project.storage.StorageException;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -45,9 +48,22 @@ public class ApiExceptionHandler {
         return new ErrorMessage(400, ex.getMessage());
     }
 
+    /**
+     * Xử lý exception liên quan đến việc valid dữ liệu
+     * @param ex
+     * @param request
+     * @return
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorMessage BindExceptionHandler(Exception ex, WebRequest request) {
+        return new ErrorMessage(400, ex.getMessage());
+    }
+
+    @ExceptionHandler({MalformedJwtException.class,ExpiredJwtException.class,
+            UnsupportedJwtException.class,IllegalArgumentException.class})
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessage JWTExceptionHandler(Exception ex, WebRequest request) {
         return new ErrorMessage(400, ex.getMessage());
     }
 }

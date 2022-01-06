@@ -27,6 +27,9 @@ public class ClaimRequest {
     @ManyToOne
     private Customer customer;
 
+    @OneToOne
+    private Contract contract;
+
     @ElementCollection
     private List<String> listUrlImage;
 
