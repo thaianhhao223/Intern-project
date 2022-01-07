@@ -39,6 +39,11 @@ public class ClaimRequestController {
         return  claimRequestService.getAllClaimRequest();
     }
 
+    @GetMapping("/id")
+    public ClaimRequest getClaimRequestById(@RequestParam String id){
+        return claimRequestService.getClaimRequestById(id);
+    }
+
     /**
      * Người dùng gửi một Claim request.
      * @param claimRequestNewDTO
