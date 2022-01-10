@@ -9,6 +9,7 @@ import com.example.mock_project.entity.Customer;
 import com.example.mock_project.entity.ReponseMessage;
 import com.example.mock_project.mapper.ClaimRequestMapper;
 import com.example.mock_project.repository.ClaimRequestRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ClaimRequestService {
 
     @Autowired
@@ -35,20 +37,19 @@ public class ClaimRequestService {
     @Autowired
     private ClaimRequestMapper claimRequestMapper;
 
-    private Logger logger;
     public List<ClaimRequest> getAllClaimRequest(){
         return claimRequestRepository.findAll();
     }
 
     public ClaimRequest getClaimRequestById(String id){
-        ClaimRequest claimRequest;
-        claimRequest = redissonService.getClaimRequestInRedis(id);
+        ClaimRequest claimRequest = redissonService.getClaimRequestById(id);
         if(claimRequest != null){
-            logger.info("Get Claim request from Redis with id: "+id);
+            log.info("Get Claim request from redis");
             return claimRequest;
         }
         Optional<ClaimRequest> claimRequestOptional = claimRequestRepository.findById(id);
         if(claimRequestOptional.isPresent()){
+            log.info("Get Claim request from db");
             return claimRequestOptional.get();
         }else{
             throw new IndexOutOfBoundsException("Not found Claim Request with id: "+id);
@@ -115,7 +116,6 @@ public class ClaimRequestService {
         claimRequest.setCustomer(customer);
         claimRequest.setListUrlImage(claimRequestNewDTO.getListUrlImage());
         claimRequestRepository.save(claimRequest);
-        redissonService.saveNewClaimRequestToRedis(claimRequest);
         ReponseMessage reponseMessage
                 = new ReponseMessage(200,"Save a new Claim request success");
         return reponseMessage;
@@ -194,6 +194,5 @@ public class ClaimRequestService {
         }else{
             throw new IndexOutOfBoundsException("Dont found Claim request with id: "+id);
         }
-
     }
 }

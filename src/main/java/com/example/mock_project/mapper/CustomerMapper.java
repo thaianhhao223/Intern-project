@@ -12,6 +12,8 @@ import org.mapstruct.factory.Mappers;
 public interface CustomerMapper {
     CustomerMapper MAPPER = Mappers.getMapper(CustomerMapper.class);
 
+    Customer customerDTOToCustomer(CustomerDTO customerDTO);
+
     CustomerDTO customerToCustomerDTO(Customer customer);
 
     CustomerForClaimRequestDTO CustomerToCustomerForClaimRequestDTO(Customer customer);

@@ -36,7 +36,8 @@ public class CustomerService {
         return customerRepository.findById(id).map(customerMapper::customerToCustomerDTO)
                 .get();
     }
-    public Customer saveCustomer(Customer customer){
+    public Customer saveCustomer(CustomerDTO customerDTO){
+        Customer customer = customerMapper.customerDTOToCustomer(customerDTO);
         customerRepository.save(customer);
         return customer;
     }
