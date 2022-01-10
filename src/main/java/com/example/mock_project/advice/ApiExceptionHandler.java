@@ -14,7 +14,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.net.BindException;
 
-@RestControllerAdvice
+//@RestControllerAdvice
 public class ApiExceptionHandler {
 
     /**
@@ -45,6 +45,18 @@ public class ApiExceptionHandler {
     @ExceptionHandler(StorageException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorMessage NotStorageException(Exception ex, WebRequest request) {
+        return new ErrorMessage(400, ex.getMessage());
+    }
+
+    @ExceptionHandler(ClassCastException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessage NotCastClassException(Exception ex, WebRequest request) {
+        return new ErrorMessage(400, ex.getMessage());
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessage NullPointerException(Exception ex, WebRequest request) {
         return new ErrorMessage(400, ex.getMessage());
     }
 

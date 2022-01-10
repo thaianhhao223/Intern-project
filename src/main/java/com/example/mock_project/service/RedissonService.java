@@ -2,28 +2,23 @@ package com.example.mock_project.service;
 
 import com.example.mock_project.entity.ClaimRequest;
 import com.example.mock_project.entity.ReponseMessage;
-import com.example.mock_project.repository.RedisRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class RedissonService {
 
-    private Logger logger;
-    private RedissonClient redissonClient = Redisson.create();
-    private  RMap map =  redissonClient.getMap("claimrequest");
+    @Autowired
+    private RedissonClient redissonClient;
 
-    public ReponseMessage saveNewClaimRequestToRedis(ClaimRequest claimRequest){
-        map.put(claimRequest.getId(),claimRequest);
-        return new ReponseMessage(200,"Save new Claim request to Redis success");
-    }
-    public ClaimRequest getClaimRequestInRedis(String id){
-        logger.info(map.get(id).toString());
-        System.out.println(map.get(id).toString());
-        return (ClaimRequest) map.get(id);
+    public ClaimRequest getClaimRequestById(String id){
+        RMap<String,ClaimRequest> map = redissonClient.getMap("claimrequest");
+        log.info("Get claim request with id {} : {}",id,map.get(id));
+        return map.get(id);
     }
 }
