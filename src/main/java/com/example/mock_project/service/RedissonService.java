@@ -10,6 +10,7 @@ import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -50,11 +51,11 @@ public class RedissonService {
         }
         return false;
     }
-
     public ClaimRequest getClaimRequestById(String id){
         RMap<String,Object> map = getMap(CLAIM_REQUEST_MAP);
         log.info("Get claim request with id {} : {}",id,map.get(id));
-        return (ClaimRequest) map.get(id);
+        ClaimRequest claimRequest = (ClaimRequest) map.get(id);
+        return claimRequest;
     }
     public Customer getCustomerById(String id){
         RMap<String,Object> map = getMap(CUSTOMER_MAP);

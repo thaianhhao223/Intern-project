@@ -1,5 +1,6 @@
 package com.example.mock_project.service;
 
+import com.example.mock_project.config.RabbitMQConfig;
 import com.example.mock_project.dto.ClaimRequestBeforePaymentDTO;
 import com.example.mock_project.dto.ClaimRequestForAnalyzeDTO;
 import com.example.mock_project.dto.ClaimRequestNewDTO;
@@ -8,43 +9,67 @@ import com.example.mock_project.entity.ClaimRequest;
 import com.example.mock_project.entity.Customer;
 import com.example.mock_project.entity.ReponseMessage;
 import com.example.mock_project.mapper.ClaimRequestMapper;
+import com.example.mock_project.rabbitmq.ReceiveMessage;
 import com.example.mock_project.repository.ClaimRequestRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@Transactional
 public class ClaimRequestService {
-
-    @Autowired
+    private final RabbitTemplate rabbitTemplate;
+    private final ReceiveMessage receiver;
     private CustomerService customerService;
-
-    @Autowired
     private RedissonService redissonService;
-
-    @Autowired
+    private ESClaimRequestService esClaimRequestService;
     private ClaimRequestRepository claimRequestRepository;
+    private ClaimRequestMapper claimRequestMapper;
 
     @Autowired
-    private ClaimRequestMapper claimRequestMapper;
+    public ClaimRequestService(RabbitTemplate rabbitTemplate,
+                               CustomerService customerService,
+                               RedissonService redissonService,
+                               ESClaimRequestService esClaimRequestService,
+                               ClaimRequestRepository claimRequestRepository,
+                               ClaimRequestMapper claimRequestMapper,
+                               ReceiveMessage receiver) {
+        this.rabbitTemplate = rabbitTemplate;
+        this.customerService = customerService;
+        this.redissonService = redissonService;
+        this.esClaimRequestService = esClaimRequestService;
+        this.claimRequestRepository = claimRequestRepository;
+        this.claimRequestMapper = claimRequestMapper;
+        this.receiver = receiver;
+    }
 
     public List<ClaimRequest> getAllClaimRequest(){
         return claimRequestRepository.findAll();
     }
 
     public ClaimRequest getClaimRequestById(String id){
-        ClaimRequest claimRequest = redissonService.getClaimRequestById(id);
+        ClaimRequest claimRequest;
+        claimRequest = redissonService.getClaimRequestById(id);
         if(claimRequest != null){
             log.info("Get Claim request from redis");
+            return claimRequest;
+        }
+        claimRequest = esClaimRequestService.findById(id);
+        if(claimRequest != null){
+            log.info("Get Claim request from ES");
             return claimRequest;
         }
         Optional<ClaimRequest> claimRequestOptional = claimRequestRepository.findById(id);
@@ -101,6 +126,7 @@ public class ClaimRequestService {
      * @param claimRequestNewDTO được client gửi đến
      * @return ReponseMessage
      */
+    @Transactional
     public ReponseMessage saveClaimRequest(ClaimRequestNewDTO claimRequestNewDTO){
         // Truy vấn customer có cùng tên và id_card
         List<Customer> listCustomer = customerService.findCustomerByCardIdAndName(claimRequestNewDTO.getName()
@@ -116,12 +142,18 @@ public class ClaimRequestService {
         claimRequest.setCustomer(customer);
         claimRequest.setListUrlImage(claimRequestNewDTO.getListUrlImage());
         claimRequestRepository.save(claimRequest);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.CLAIMREQUEST_EXCHANGE,RabbitMQConfig.CLAIMREQUEST_CREATE_UPDATE,
+                claimRequest);
+//        esClaimRequestService.saveClaimRequestToES(claimRequest);
+//        redissonService.saveClaimRequest(claimRequest);
         ReponseMessage reponseMessage
                 = new ReponseMessage(200,"Save a new Claim request success");
         return reponseMessage;
     }
     public ReponseMessage updateClaimRequest(ClaimRequest claimRequest){
         claimRequestRepository.saveAndFlush(claimRequest);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.CLAIMREQUEST_EXCHANGE,RabbitMQConfig.CLAIMREQUEST_CREATE_UPDATE,
+                claimRequest);
         ReponseMessage reponseMessage
                 = new ReponseMessage(200,"update Claim request success");
         return reponseMessage;
@@ -146,6 +178,7 @@ public class ClaimRequestService {
             claimRequestDB.setName(claimRequest.getName());
             claimRequestDB.setValidReceipt(claimRequest.isValidReceipt());
             claimRequestRepository.saveAndFlush(claimRequestDB);
+            esClaimRequestService.saveClaimRequestToES(claimRequestDB);
             ReponseMessage reponseMessage
                     = new ReponseMessage(200,"Analyze success");
             return reponseMessage;
@@ -188,6 +221,8 @@ public class ClaimRequestService {
         Optional<ClaimRequest> claimRequestOptional = claimRequestRepository.findById(id);
         if(claimRequestOptional.isPresent()){
             claimRequestRepository.delete(claimRequestOptional.get());
+            rabbitTemplate.convertAndSend(RabbitMQConfig.CLAIMREQUEST_EXCHANGE,RabbitMQConfig.CLAIMREQUEST_DELETE,
+                    id);
             ReponseMessage reponseMessage
                     = new ReponseMessage(200,"delete success");
             return reponseMessage;

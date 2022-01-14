@@ -3,11 +3,9 @@ package com.example.mock_project.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.elasticsearch.annotations.Document;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.io.File;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.List;
@@ -18,6 +16,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Document(indexName = "mockproject",type = "claimrequest")
 public class ClaimRequest implements Serializable {
     @Id
     @GeneratedValue(generator="system-uuid")
@@ -31,7 +30,7 @@ public class ClaimRequest implements Serializable {
     @OneToOne
     private Contract contract;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER, targetClass = String.class)
     private List<String> listUrlImage;
 
     @Column(columnDefinition = "boolean default false")

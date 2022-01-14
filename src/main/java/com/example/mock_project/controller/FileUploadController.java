@@ -1,6 +1,9 @@
 package com.example.mock_project.controller;
 
+import com.example.mock_project.config.RabbitMQConfig;
+import com.example.mock_project.rabbitmq.ReceiveMessage;
 import com.example.mock_project.storage.StorageService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +13,7 @@ import java.io.BufferedWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Dùng để test chức năng upload file
