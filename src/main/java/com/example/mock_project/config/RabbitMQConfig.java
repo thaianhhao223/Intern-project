@@ -19,7 +19,7 @@ public class RabbitMQConfig {
     public static final String CLAIMREQUEST_DELETE = "claimrequest.delete";
 
     @Bean
-    public Declarables topicBindings() {
+    public Declarables topicBingdings() {
         Queue claimrequestQueueCreateAndUpdate = new Queue(CLAIMREQUEST_CREATE_UPDATE, false);
         Queue claimrequestQueueDelete = new Queue(CLAIMREQUEST_DELETE, false);
         TopicExchange topicExchange = new TopicExchange(CLAIMREQUEST_EXCHANGE);
@@ -31,4 +31,18 @@ public class RabbitMQConfig {
                 bind(claimrequestQueueDelete).to(topicExchange).with(CLAIMREQUEST_DELETE)
         );
     }
+//
+//    @Bean
+//    public Declarables directBingdings() {
+//        Queue claimrequestQueueCreateAndUpdate = new Queue(CLAIMREQUEST_CREATE_UPDATE, false);
+//        Queue claimrequestQueueDelete = new Queue(CLAIMREQUEST_DELETE, false);
+//        DirectExchange directExchange = new DirectExchange(CLAIMREQUEST_EXCHANGE);
+//        return new Declarables(
+//                claimrequestQueueCreateAndUpdate,
+//                claimrequestQueueDelete,
+//                directExchange,
+//                bind(claimrequestQueueCreateAndUpdate).to(directExchange).with(CLAIMREQUEST_CREATE_UPDATE),
+//                bind(claimrequestQueueDelete).to(directExchange).with(CLAIMREQUEST_DELETE)
+//        );
+//    }
 }

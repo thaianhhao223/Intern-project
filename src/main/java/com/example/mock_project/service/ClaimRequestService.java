@@ -62,11 +62,11 @@ public class ClaimRequestService {
 
     public ClaimRequest getClaimRequestById(String id){
         ClaimRequest claimRequest;
-        claimRequest = redissonService.getClaimRequestById(id);
-        if(claimRequest != null){
-            log.info("Get Claim request from redis");
-            return claimRequest;
-        }
+//        claimRequest = redissonService.getClaimRequestById(id);
+//        if(claimRequest != null){
+//            log.info("Get Claim request from redis");
+//            return claimRequest;
+//        }
         claimRequest = esClaimRequestService.findById(id);
         if(claimRequest != null){
             log.info("Get Claim request from ES");

@@ -19,8 +19,8 @@ import java.util.List;
 @Document(indexName = "mockproject",type = "claimrequest")
 public class ClaimRequest implements Serializable {
     @Id
-    @GeneratedValue(generator="system-uuid")
-    @GenericGenerator(name="system-uuid", strategy = "uuid")
+//    @GeneratedValue(generator="genarator_claimrequest_id")
+//    @GenericGenerator(name="genarator_claimrequest_id", strategy = "com.example.mock_project.ganarator.GenaratorForClaimRequestId")
     @Column(name = "claim_request_code")
     private String id;
 

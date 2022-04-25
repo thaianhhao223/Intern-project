@@ -38,4 +38,5 @@ public interface ClaimRequestRepository extends JpaRepository<ClaimRequest,Strin
     @Query("select clrq from ClaimRequest clrq where hasPayment = true and payment = true " +
             "and month(clrq.dateOfReceipt) = month and year(clrq.dateOfReceipt) = year")
     List<ClaimRequest> findClaimRequestPaymentHistory(int month, int year);
+
 }

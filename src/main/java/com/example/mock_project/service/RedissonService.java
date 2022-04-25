@@ -6,6 +6,7 @@ import com.example.mock_project.entity.Customer;
 import com.example.mock_project.entity.ReponseMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
+import org.redisson.api.RAtomicLong;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class RedissonService {
     private final String COUNT_MAP = "count";
     private final String COUNT_CLAIM_REQUEST = "countclaimrequest";
     private final String COUNT_CONTRACT = "countcontract";
+
+    private RAtomicLong rAtomicLong;
+
     @Autowired
     private RedissonClient redissonClient;
 
@@ -28,6 +32,10 @@ public class RedissonService {
         return redissonClient.getMap(map);
     }
 
+    public Long getCount(String nameOfCount){
+        rAtomicLong = redissonClient.getAtomicLong(nameOfCount);
+        return rAtomicLong.getAndIncrement();
+    }
     public boolean saveCustomer(Customer customer){
         RMap<String, Object> map = getMap(CUSTOMER_MAP);
         if(map.put(customer.getId().toString(),customer) != null){
@@ -67,22 +75,4 @@ public class RedissonService {
         log.info("Get contract with id {} : {}",id,map.get(id));
         return (Contract) map.get(id);
     }
-
-    public Long getCountClaimRequest(){
-        RMap<String,Object> map = getMap(COUNT_MAP);
-        log.info("Get count claimrequest: {}",map.get(COUNT_CLAIM_REQUEST));
-        return (Long) map.get(COUNT_CLAIM_REQUEST);
-    }
-
-    public Long getCountContract(){
-        RMap<String,Object> map = getMap(COUNT_MAP);
-        log.info("Get count claimrequest: {}",map.get(COUNT_CONTRACT));
-        return (Long) map.get(COUNT_CONTRACT);
-    }
-
-//    public boolean increaseCountClaimRequest(){
-//        RMap<String,Object> map = getMap(COUNT_MAP);
-//        redissonClient.getList()
-//        log.info("Increase count claimrequest: {}",map.get(COUNT_CLAIM_REQUEST));
-//    }
 }
